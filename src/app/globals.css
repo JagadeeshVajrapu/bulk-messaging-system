@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --blue-800: #1e40af;
+  --blue-600: #2563eb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: var(--foreground);
+}
+
+/* Ensure text is always visible */
+.text-foreground {
+  color: var(--foreground) !important;
+}
+
+/* Blue border styling for the admin interface */
+.border-blue-800 {
+  border-color: var(--blue-800) !important;
+}
+
+.text-blue-800 {
+  color: var(--blue-800) !important;
+}
+
+/* Ensure form inputs always have visible text */
+input, select, textarea {
+  color: #1a202c !important; /* Dark gray color for better visibility */
+  transition: all 0.3s ease;
+}
+
+input:hover, select:hover, textarea:hover {
+  border-color: var(--blue-600) !important; /* Blue border on hover */
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue-800) !important; /* Darker blue border on focus */
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.5);
+}
+
+input::placeholder, select::placeholder, textarea::placeholder {
+  color: var(--blue-800) !important; /* Blue color for placeholders */
+  opacity: 1; /* Ensure full opacity in Firefox */
+  font-weight: 600; /* Make placeholder text bolder */
+  transition: opacity 0.3s ease;
+}
+
+input:hover::placeholder, select:hover::placeholder, textarea:hover::placeholder {
+  opacity: 0.8; /* Slightly fade out placeholder on hover */
+}
+
+/* Button hover effects */
+button, .button, a[href]:not(.no-hover) {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover, .button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Header hover effect */
+header {
+  transition: background-color 0.3s ease;
+}
+
+header:hover {
+  background-color: #f7fafc !important;
+}
+
+/* Custom blue border styling */
+.blue-border {
+  border: 2px solid var(--blue-800);
+}
+
+/* Search input specific styling */
+.search-input {
+  border: 2px solid var(--blue-800);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: var(--blue-800);
+  font-weight: 600;
+}
+
+.search-input::placeholder {
+  color: var(--blue-800);
+  opacity: 1;
+}
+
+/* Platform section styling */
+.platform-section {
+  border: 2px solid var(--blue-800);
+  border-radius: 0.5rem;
+  background: white;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Action button styling */
+.action-button {
+  border: 2px solid var(--blue-800);
+  color: var(--blue-800);
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: #eff6ff;
+  transform: translateY(-1px);
+}

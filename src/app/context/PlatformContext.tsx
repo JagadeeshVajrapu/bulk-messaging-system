@@ -60,7 +60,6 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
   const [platforms, setPlatforms] = useState<Platform[]>([
     { id: 'instagram', name: 'Instagram', type: 'instagram', url: '', apiKey: '', status: 'active' },
     { id: 'whatsapp-business', name: 'WhatsApp Business', type: 'whatsapp-business', url: '', apiKey: '', status: 'active' },
-    { id: 'linkedin', name: 'LinkedIn', type: 'linkedin', url: '', apiKey: '', status: 'active' },
     { id: 'facebook', name: 'Facebook', type: 'facebook', url: '', apiKey: '', status: 'active' },
     { id: 'youtube', name: 'YouTube', type: 'youtube', url: '', apiKey: '', status: 'active' },
     { id: 'gmail', name: 'Gmail', type: 'gmail', url: '', apiKey: '', status: 'active' },
@@ -68,6 +67,7 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
     { id: 'telegram', name: 'Telegram', type: 'telegram', url: '', apiKey: '', status: 'active' },
     { id: 'tiktok', name: 'TikTok', type: 'tiktok', url: '', apiKey: '', status: 'active' },
     { id: 'snapchat', name: 'Snapchat', type: 'snapchat', url: '', apiKey: '', status: 'active' },
+    { id: 'linkdin', name: 'Linkdin', type: 'linkdin', url: '', apiKey: '', status: 'active' },
     { id: 'pinterest', name: 'Pinterest', type: 'pinterest', url: '', apiKey: '', status: 'active' },
   ]);
   const [accountPlatforms, setAccountPlatforms] = useState<AccountPlatform[]>([]);

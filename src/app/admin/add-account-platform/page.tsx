@@ -22,37 +22,30 @@ export default function AddAccountPlatform() {
 
   // Predefined platform list for the popup
   const predefinedPlatforms = [
-    'Instagram',
-    'WhatsApp Business',
-    'LinkedIn',
-    'Facebook',
-    'YouTube',
-    'Gmail',
-    'Twitter',
-    'Telegram',
-    'TikTok',
-    'Snapchat',
-    'Pinterest',
-    'Chrome',
-    'Safari',
-    'Firefox',
-    'Edge',
-    'Opera',
-    'Brave',
-    'Discord',
-    'Slack',
-    'Zoom',
-    'Skype',
-    'Teams',
-    'Dropbox',
-    'Google Drive',
-    'OneDrive',
-    'GitHub',
-    'Stack Overflow',
-    'Reddit',
-    'Quora',
-    'Medium',
-    'Substack'
+    // Social & community
+    'Instagram', 'WhatsApp Business', 'WhatsApp', 'Facebook', 'Twitter', 'X', 'Telegram', 'TikTok', 'Snapchat', 'Pinterest', 'Threads', 'Mastodon', 'Bluesky', 'Reddit', 'Quora', 'Twitch', 'YouTube', 'Vimeo', 'Dailymotion',
+    // Messaging & collaboration
+    'Discord', 'Slack', 'Zoom', 'Skype', 'Microsoft Teams', 'Google Meet', 'Signal', 'WeChat', 'Line', 'Viber',
+    // Email
+    'Google', 'Gmail', 'Outlook', 'Yahoo Mail', 'iCloud Mail',
+    // Productivity & docs
+    'Notion', 'Evernote', 'Confluence', 'Jira', 'Asana', 'Trello', 'ClickUp', 'Monday.com',
+    // Cloud storage
+    'Google Drive', 'OneDrive', 'Dropbox', 'Box', 'iCloud Drive',
+    // Dev & knowledge
+    'GitHub', 'GitLab', 'Bitbucket', 'Stack Overflow',
+    // CMS / publishing
+    'WordPress', 'Medium', 'Blogger', 'Ghost', 'Substack',
+    // Commerce & CRM
+    'Shopify', 'WooCommerce', 'Magento', 'Salesforce', 'HubSpot', 'Zoho CRM',
+    // Payments
+    'Stripe', 'PayPal', 'Razorpay', 'Square',
+    // Marketing & analytics
+    'Google Ads', 'Facebook Ads', 'LinkedIn Ads', 'Instagram Ads', 'Google Analytics', 'Mixpanel', 'Amplitude', 'Hotjar', 'Intercom', 'Zendesk', 'Freshdesk', 'ServiceNow',
+    // Browsers
+    'Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Brave',
+    // Media & music
+    'Spotify', 'SoundCloud', 'Apple Music'
   ];
 
   // Filter platforms based on search
@@ -102,40 +95,60 @@ export default function AddAccountPlatform() {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       setShowPlatforms(true);
-      
-      // Check if the searched platform already exists
-      const existingPlatform = platforms.find(p => 
-        p.name.toLowerCase() === searchQuery.toLowerCase().trim()
+
+      // If the search exactly matches a known platform name and it doesn't exist yet,
+      // create it using the full, canonical name.
+      const normalizedQuery = searchQuery.toLowerCase().trim();
+
+      // Handle common misspellings to canonical names
+      const canonicalMap: { [miss: string]: string } = {
+        'whatsappbusiness': 'WhatsApp Business',
+        'google drive': 'Google Drive',
+        'onedrive': 'OneDrive',
+      };
+      const mappedName = canonicalMap[normalizedQuery] || null;
+
+      const exactKnownName = mappedName || predefinedPlatforms.find(
+        (name) => name.toLowerCase() === normalizedQuery
       );
-      
-      // If platform doesn't exist, create it automatically
-      if (!existingPlatform) {
-        const newPlatformId = addPlatform({ 
-          name: searchQuery.trim(), 
-          type: searchQuery.toLowerCase().trim().replace(/\s+/g, ''), 
-          url: '', 
-          apiKey: '' 
-        });
-        
-        // Initialize platform accounts with the returned ID
-        setPlatformAccounts(prev => ({
-          ...prev,
-          [newPlatformId]: []
-        }));
-        
-        // Clear search query after adding
-        setSearchQuery('');
+
+      if (exactKnownName) {
+        const alreadyExists = platforms.some(
+          (p) => p.name.toLowerCase() === normalizedQuery
+        );
+
+        if (!alreadyExists) {
+          const newPlatformId = addPlatform({
+            name: exactKnownName,
+            type: exactKnownName.toLowerCase().replace(/\s+/g, ''),
+            url: '',
+            apiKey: ''
+          });
+
+          setPlatformAccounts((prev) => ({
+            ...prev,
+            [newPlatformId]: []
+          }));
+
+          setSearchQuery('');
+        }
       }
     } else {
       setShowPlatforms(false);
     }
   };
 
+  // Select an existing platform from search results for configuration
+  const handleSelectExistingPlatform = (platformId: string) => {
+    initializePlatform(platformId);
+    setShowPlatforms(true);
+  };
+
   // Handle adding new platform from predefined list
   const handleAddNewPlatform = (platformName: string) => {
     const newPlatformId = addPlatform({ 
       name: platformName, 
-      type: platformName.toLowerCase().replace(' ', ''), 
+      type: platformName.toLowerCase().replace(/\s+/g, ''), 
       url: '', 
       apiKey: '' 
     });
@@ -313,10 +326,10 @@ export default function AddAccountPlatform() {
                           <div key={platform.id} className="border-2 border-gray-200 rounded-xl p-4 bg-white hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">{platform.name}</h3>
                             <p className="text-sm text-gray-600 mb-3">{platform.type}</p>
-                                                         <button
-                               onClick={() => handleAddNewPlatform(platform.name)}
-                               className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-                             >
+                            <button
+                              onClick={() => handleSelectExistingPlatform(platform.id)}
+                              className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                            >
                               Add Platform
                             </button>
                           </div>

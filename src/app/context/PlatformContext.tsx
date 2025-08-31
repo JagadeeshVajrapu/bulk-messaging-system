@@ -51,6 +51,9 @@ type PlatformContextType = {
   getPlatformAccountPairs: () => PlatformAccountPair[];
   deletePlatformAccountPair: (id: string) => void;
   clearPlatformAccountPairs: () => void;
+  // New functions for getting account addresses by platform
+  getAccountAddressesByPlatform: (platformName: string) => string[];
+  getAccountAddressesByPlatformType: (platformType: string) => string[];
 };
 
 const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
@@ -60,6 +63,7 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
   const [platforms, setPlatforms] = useState<Platform[]>([
     { id: 'instagram', name: 'Instagram', type: 'instagram', url: '', apiKey: '', status: 'active' },
     { id: 'whatsapp-business', name: 'WhatsApp Business', type: 'whatsapp-business', url: '', apiKey: '', status: 'active' },
+    { id: 'whatsapp', name: 'WhatsApp',type: 'whatsapp', url: '', apiKey: '', status: 'active' },
     { id: 'facebook', name: 'Facebook', type: 'facebook', url: '', apiKey: '', status: 'active' },
     { id: 'youtube', name: 'YouTube', type: 'youtube', url: '', apiKey: '', status: 'active' },
     { id: 'gmail', name: 'Gmail', type: 'gmail', url: '', apiKey: '', status: 'active' },
@@ -157,6 +161,19 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
     setPlatformAccountPairs([]);
   };
 
+  // New functions for getting account addresses by platform
+  const getAccountAddressesByPlatform = (platformName: string): string[] => {
+    return platformAccountPairs
+      .filter(pair => pair.platformName === platformName)
+      .map(pair => pair.accountAddress);
+  };
+
+  const getAccountAddressesByPlatformType = (platformType: string): string[] => {
+    return platformAccountPairs
+      .filter(pair => pair.platformType === platformType)
+      .map(pair => pair.accountAddress);
+  };
+
   return (
     <PlatformContext.Provider value={{
       accounts,
@@ -173,7 +190,9 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
       addPlatformAccountPair,
       getPlatformAccountPairs,
       deletePlatformAccountPair,
-      clearPlatformAccountPairs
+      clearPlatformAccountPairs,
+      getAccountAddressesByPlatform,
+      getAccountAddressesByPlatformType
     }}>
       {children}
     </PlatformContext.Provider>

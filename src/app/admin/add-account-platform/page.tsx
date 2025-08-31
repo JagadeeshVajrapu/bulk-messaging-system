@@ -23,7 +23,7 @@ export default function AddAccountPlatform() {
   // Predefined platform list for the popup
   const predefinedPlatforms = [
     // Social & community
-    'Instagram', 'WhatsApp Business', 'WhatsApp', 'Facebook', 'Twitter', 'X', 'Telegram', 'TikTok', 'Snapchat', 'Pinterest', 'Threads', 'Mastodon', 'Bluesky', 'Reddit', 'Quora', 'Twitch', 'YouTube', 'Vimeo', 'Dailymotion',
+    'Instagram', 'WhatsApp', 'WhatsApp Business', 'Facebook', 'Twitter', 'X', 'Telegram', 'TikTok', 'Snapchat', 'Pinterest', 'Threads', 'Mastodon', 'Bluesky', 'Reddit', 'Quora', 'Twitch', 'YouTube', 'Vimeo', 'Dailymotion',
     // Messaging & collaboration
     'Discord', 'Slack', 'Zoom', 'Skype', 'Microsoft Teams', 'Google Meet', 'Signal', 'WeChat', 'Line', 'Viber',
     // Email
@@ -48,11 +48,22 @@ export default function AddAccountPlatform() {
     'Spotify', 'SoundCloud', 'Apple Music'
   ];
 
-  // Filter platforms based on search
+  // Filter platforms based on search - show platforms that contain the search query
   const filteredPlatforms = searchQuery.trim() ? platforms.filter(platform =>
     platform.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     platform.type.toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
+
+  // Only show WhatsApp platforms when searching for "whatsapp"
+  const matchingPredefinedPlatforms = searchQuery.trim() && searchQuery.toLowerCase().includes('whatsapp') ? 
+    predefinedPlatforms.filter(platform =>
+      platform.toLowerCase().includes('whatsapp')
+    ).filter(platformName => {
+      // Filter out platforms that are already added
+      return !platforms.some(p => p.name === platformName);
+    }) : [];
+
+
 
   // Initialize platform with empty accounts if not exists
   const initializePlatform = (platformId: string) => {
@@ -159,9 +170,14 @@ export default function AddAccountPlatform() {
     }));
     setShowPlatformModal(false);
     
-    // If we're currently searching, update the search to show the new platform
+    // Force re-render of search results to update available platforms
     if (searchQuery.trim()) {
       setShowPlatforms(true);
+      // Trigger a small delay to ensure the platform is added before re-rendering
+      setTimeout(() => {
+        setShowPlatforms(false);
+        setShowPlatforms(true);
+      }, 100);
     }
   };
 
@@ -317,25 +333,57 @@ export default function AddAccountPlatform() {
                 {/* Search Results Section */}
                 {showPlatforms && (
                   <div className="border-t-2 border-gray-200 pt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6"></h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredPlatforms.map(platform => {
-                        if (platformAccounts[platform.id]) return null;
-                        
-                        return (
-                          <div key={platform.id} className="border-2 border-gray-200 rounded-xl p-4 bg-white hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">{platform.name}</h3>
-                            <p className="text-sm text-gray-600 mb-3">{platform.type}</p>
-                            <button
-                              onClick={() => handleSelectExistingPlatform(platform.id)}
-                              className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-                            >
-                              Add Platform
-                            </button>
-                          </div>
+                    {/* Existing Platforms */}
+                    {filteredPlatforms.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-700 mb-4">Existing Platforms</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {filteredPlatforms.map(platform => {
+                            if (platformAccounts[platform.id]) return null;
+                            
+                            return (
+                              <div key={platform.id} className="border-2 border-gray-200 rounded-xl p-4 bg-white hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{platform.name}</h3>
+                                <p className="text-sm text-gray-600 mb-3">{platform.type}</p>
+                                <button
+                                  onClick={() => handleSelectExistingPlatform(platform.id)}
+                                  className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                                >
+                                  Add Platform
+                                </button>
+                              </div>
                         );
-                      })}
-                    </div>
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Available Predefined Platforms */}
+                    {matchingPredefinedPlatforms.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-700 mb-4">Available to Add</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {matchingPredefinedPlatforms.map((platformName, index) => {
+                            // Check if this platform already exists
+                            const alreadyExists = platforms.some(p => p.name === platformName);
+                            if (alreadyExists) return null;
+                            
+                            return (
+                              <div key={`${platformName}-${index}`} className="border-2 border-gray-200 rounded-xl p-4 bg-green-50 hover:border-green-300 hover:shadow-md transition-all cursor-pointer">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{platformName}</h3>
+                                <p className="text-sm text-gray-600 mb-3">New Platform</p>
+                                <button
+                                  onClick={() => handleAddNewPlatform(platformName)}
+                                  className="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                                >
+                                  Add New Platform
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

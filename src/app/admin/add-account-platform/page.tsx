@@ -157,9 +157,19 @@ export default function AddAccountPlatform() {
 
   // Handle adding new platform from predefined list
   const handleAddNewPlatform = (platformName: string) => {
+    // Generate proper platform type based on the name
+    let platformType = platformName.toLowerCase().replace(/\s+/g, '');
+    
+    // Special handling for WhatsApp platforms
+    if (platformName === 'WhatsApp Business') {
+      platformType = 'whatsapp-business';
+    } else if (platformName === 'WhatsApp') {
+      platformType = 'whatsapp';
+    }
+    
     const newPlatformId = addPlatform({ 
       name: platformName, 
-      type: platformName.toLowerCase().replace(/\s+/g, ''), 
+      type: platformType, 
       url: '', 
       apiKey: '' 
     });

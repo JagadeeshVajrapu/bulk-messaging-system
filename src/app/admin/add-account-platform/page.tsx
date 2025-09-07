@@ -6,7 +6,18 @@ import { usePlatform } from '../../context/PlatformContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function AddAccountPlatform() {
-  const { platforms, addAccount, addPlatform, linkAccountPlatform, addPlatformAccountPair, getPlatformAccountPairs } = usePlatform();
+  const { 
+    platforms,
+    addAccount,
+    addPlatform,
+    linkAccountPlatform,
+    addPlatformAccountPair,
+    getPlatformAccountPairs,
+    getPlatformAccounts,
+    deletePlatformAccountPair,
+    platformAccountPairs,
+    deleteAccountFromPlatform
+  } = usePlatform();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,14 +232,53 @@ export default function AddAccountPlatform() {
   // Save all platform-account pairs
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    // Build desired addresses per platformId and platformName
+    const desiredByPlatformId: { [platformId: string]: Set<string> } = {};
+    const platformIdToName = new Map<string, string>();
+    platforms.forEach(p => platformIdToName.set(p.id, p.name));
+
+    for (const [platformId, accs] of Object.entries(platformAccounts)) {
+      const set = new Set<string>();
+      accs.forEach(a => {
+        const addr = a.address.trim();
+        if (addr) set.add(addr);
+      });
+      desiredByPlatformId[platformId] = set;
+    }
+
+    // 1) Remove deleted pairs from the pairs store
+    const existingPairs = platformAccountPairs;
+    existingPairs.forEach(pair => {
+      const platformId = platforms.find(p => p.name === pair.platformName)?.id;
+      if (!platformId) return;
+      const desired = desiredByPlatformId[platformId] || new Set<string>();
+      if (!desired.has(pair.accountAddress)) {
+        deletePlatformAccountPair(pair.id);
+      }
+    });
+
+    // 2) Remove deleted links/accounts from legacy structure
+    Object.entries(desiredByPlatformId).forEach(([platformId, desiredSet]) => {
+      const currentAccounts = getPlatformAccounts(platformId);
+      currentAccounts.forEach(acc => {
+        const addr = acc.name;
+        if (!desiredSet.has(addr)) {
+          deleteAccountFromPlatform(acc.id, platformId);
+        }
+      });
+    });
+
+    // 3) Add or update current entries
     for (const [platformId, accounts] of Object.entries(platformAccounts)) {
       const platform = platforms.find(p => p.id === platformId);
       if (platform) {
         for (const account of accounts) {
           if (account.address.trim()) {
             // Save to the new platform-account pairs structure
-            addPlatformAccountPair(platform.name, account.address, platform.type);
+            const alreadyPairExists = platformAccountPairs.some(p => p.platformName === platform.name && p.accountAddress === account.address);
+            if (!alreadyPairExists) {
+              addPlatformAccountPair(platform.name, account.address, platform.type);
+            }
             
             // Also save to the legacy structure for backward compatibility
             const accountId = addAccount({ 

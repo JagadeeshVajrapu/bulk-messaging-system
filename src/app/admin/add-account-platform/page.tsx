@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePlatform } from '../../context/PlatformContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function AddAccountPlatform() {
-  const { platforms, addAccount, addPlatform, linkAccountPlatform, addPlatformAccountPair } = usePlatform();
+  const { platforms, addAccount, addPlatform, linkAccountPlatform, addPlatformAccountPair, getPlatformAccountPairs } = usePlatform();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +19,33 @@ export default function AddAccountPlatform() {
 
   // Modal state for adding new platform
   const [showPlatformModal, setShowPlatformModal] = useState(false);
+
+  // Pre-populate with previously saved platform-account pairs
+  useEffect(() => {
+    const pairs = getPlatformAccountPairs();
+    if (!pairs || pairs.length === 0) return;
+
+    // Map platform name -> platform id
+    const nameToId = new Map<string, string>();
+    platforms.forEach(p => nameToId.set(p.name, p.id));
+
+    const next: { [platformId: string]: { id: string; address: string }[] } = {};
+    pairs.forEach(pair => {
+      const platformId = nameToId.get(pair.platformName);
+      if (!platformId) return;
+      if (!next[platformId]) next[platformId] = [];
+      // Avoid duplicate addresses in the list
+      const exists = next[platformId].some(a => a.address === pair.accountAddress);
+      if (!exists) {
+        next[platformId].push({ id: uuidv4(), address: pair.accountAddress });
+      }
+    });
+
+    if (Object.keys(next).length > 0) {
+      setPlatformAccounts(next);
+      setShowPlatforms(true);
+    }
+  }, [platforms, getPlatformAccountPairs]);
 
   // Predefined platform list for the popup
   const predefinedPlatforms = [

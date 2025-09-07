@@ -225,6 +225,25 @@ export default function SetAccountPlatform() {
     return connectedAccounts;
   };
 
+  const canSave = groupedData.length > 0 && groupedData.every(group => !!getSelectedAccountForPlatform(group.platformName));
+
+  const handleSaveSelections = () => {
+    // Require a selection for each listed platform
+    if (!canSave) {
+      alert('Please select an account address for each platform before saving.');
+      return;
+    }
+
+    // Persist finalized selections with a separate key
+    const payload = {
+      selections: selectedAccounts,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('savedSetAccountPlatformSelections', JSON.stringify(payload));
+
+    alert('✅ Account selections saved successfully for Set Account & Platform.');
+  };
+
   const handleDataExtraction = async (platformName: string) => {
     const connectedAccount = getConnectedAccountForPlatform(platformName);
     
@@ -426,20 +445,22 @@ export default function SetAccountPlatform() {
               >
                 Back to Home
               </Link>
-              <Link
-                href="/admin/view-account-platform"
-                className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+              <button
+                type="button"
+                onClick={handleSaveSelections}
+                disabled={!canSave}
+                className={`px-6 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ${canSave ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-300 text-white cursor-not-allowed'}`}
               >
-                View All
-              </Link>
+                Save
+              </button>
             </div>
-            
+
             <div className="flex space-x-4">
               <Link
                 href="/admin/add-account-platform"
                 className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200"
               >
-                Add More Platforms
+                Add
               </Link>
             </div>
           </div>
